@@ -1,7 +1,0 @@
-setuptools
-zc.buildout
-raptus.torii
-
-[tests]
-zope.testing
-zc.buildout
