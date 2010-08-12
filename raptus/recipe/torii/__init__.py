@@ -4,6 +4,9 @@ import raptus.torii
 
 """Recipe recipe"""
 
+
+REQUIRED_IMPORTS = [raptus.torii]
+
 class Recipe(object):
     """zc.buildout recipe"""
 
@@ -11,13 +14,15 @@ class Recipe(object):
         self.buildout, self.name, self.options = buildout, name, options
         self.buildout_var = buildout['buildout']
         self.torii_path = os.path.join(self.buildout_var['bin-directory'],options.name)
-
-        self.path_egg = raptus.torii.__path__[0]
-        index = self.path_egg.rfind(raptus.torii.__name__) + len(raptus.torii.__name__)
-        self.path_egg = self.path_egg[:index]
+        
+        self.required_paths = []
+        for req in REQUIRED_IMPORTS:
+            path = req.__path__[0]
+            index = path.rfind(raptus.torii.__name__) + len(req.__name__)
+            self.required_paths.append(path[:index])
         
         self.vars = dict(python_path = self.buildout_var['executable'],
-                    raptus_torii_path = self.path_egg,
+                    raptus_torii_paths = "',\n'".join(self.required_paths),
                     socket_path = self.options['socket-path'])
 
         template = template_zope_conf % self.vars
@@ -55,11 +60,13 @@ class Recipe(object):
 template_torii = """#!%(python_path)s
 
 import sys
-sys.path.append('%(raptus_torii_path)s')
+sys.path[0:0] = [
+'%(raptus_torii_paths)s']
+
+
 from raptus.torii.client import Client
 
 PATH ='%(socket_path)s'
-
 Client(PATH).main()
 """
 
