@@ -12,6 +12,10 @@ class Recipe(object):
 
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
+        if buildout['buildout'].has_key('eggs'):
+            buildout['buildout']['eggs'] += '\nraptus.torii'
+        else:
+            buildout['buildout'].update(dict(eggs='\nraptus.torii'))
         self.buildout_var = buildout['buildout']
         self.torii_path = os.path.join(self.buildout_var['bin-directory'],options.name)
         self.required_paths = []
@@ -45,13 +49,11 @@ class Recipe(object):
                          zope.conf is not configured for torii.
                     """
         
-        
     def install(self):
         self.update()
         return self.torii_path
 
     def update(self):
-        
         template = template_torii % self.vars
         try:
             fd = open(self.torii_path, 'w+')
