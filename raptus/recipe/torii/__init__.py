@@ -2,10 +2,11 @@
 import os, stat
 import raptus.torii
 import twisted
+import IPython
 """Recipe recipe"""
 
 
-REQUIRED_IMPORTS = [raptus.torii, twisted]
+REQUIRED_IMPORTS = [raptus.torii, twisted, IPython]
 
 class Recipe(object):
     """zc.buildout recipe"""
