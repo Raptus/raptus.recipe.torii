@@ -33,10 +33,15 @@ class Recipe(object):
 
         for part in self.instance:
             self.required_paths.append('%s/lib/python' % buildout[part]['zope2-location'])
+        
+        threaded = False
+        if self.options.has_key('threaded'):
+            threaded = self.options['threaded']
 
         self.vars = dict(python_path = self.buildout_var['executable'],
-                    raptus_torii_paths = "',\n'".join(self.required_paths),
-                    socket_path = self.options['socket-path'])
+                         raptus_torii_paths = "',\n'".join(self.required_paths),
+                         socket_path = self.options['socket-path'],
+                         threaded = threaded)
 
         template = template_zope_conf % self.vars
         for part in self.instance:
@@ -84,6 +89,7 @@ template_zope_conf = """
 %%import raptus.torii
 <torii>
   path %(socket_path)s
+  threaded %(threaded)s
 </torii>
 
 """
