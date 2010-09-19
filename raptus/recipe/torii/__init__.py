@@ -13,10 +13,13 @@ class Recipe(object):
 
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
+        
+        
+        eggs = '\nraptus.torii\n%s' % options.get('extends','')
         if buildout['buildout'].has_key('eggs'):
-            buildout['buildout']['eggs'] += '\nraptus.torii'
+            buildout['buildout']['eggs'] += eggs
         else:
-            buildout['buildout'].update(dict(eggs='\nraptus.torii'))
+            buildout['buildout'].update(dict(eggs=eggs))
         self.buildout_var = buildout['buildout']
         self.torii_path = os.path.join(self.buildout_var['bin-directory'],options.name)
         self.required_paths = []
@@ -34,14 +37,12 @@ class Recipe(object):
         for part in self.instance:
             self.required_paths.append('%s/lib/python' % buildout[part]['zope2-location'])
         
-        threaded = False
-        if self.options.has_key('threaded'):
-            threaded = self.options['threaded']
-
         self.vars = dict(python_path = self.buildout_var['executable'],
                          raptus_torii_paths = "',\n'".join(self.required_paths),
                          socket_path = self.options['socket-path'],
-                         threaded = threaded)
+                         threaded = self.options.get('threaded',False),
+                         extends = self.options.get('extends','').strip().replace('\n',';'),
+                         params = self.options.get('params','').strip().replace('\n',';'))
 
         template = template_zope_conf % self.vars
         for part in self.instance:
@@ -64,9 +65,11 @@ class Recipe(object):
         try:
             fd = open(self.torii_path, 'w+')
             fd.write(template)
+            print 'Generated script for torii %s' % self.torii_path
         finally:
             fd.close()
             os.chmod(self.torii_path, 0755)
+
         
             
 template_torii = """#!%(python_path)s
@@ -90,6 +93,8 @@ template_zope_conf = """
 <torii>
   path %(socket_path)s
   threaded %(threaded)s
+  extends %(extends)s
+  params %(params)s
 </torii>
 
 """
