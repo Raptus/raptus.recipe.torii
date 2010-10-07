@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-import os, stat
-import raptus.torii
-import twisted
-import IPython
-"""Recipe recipe"""
+import os
+import zc.buildout.easy_install
+import zc.recipe.egg
 
-
-REQUIRED_IMPORTS = [raptus.torii, twisted, IPython]
 
 class Recipe(object):
     """zc.buildout recipe"""
@@ -14,76 +10,32 @@ class Recipe(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         
-        
-        eggs = '\nraptus.torii\n%s' % options.get('extends','')
-        if buildout['buildout'].has_key('eggs'):
-            buildout['buildout']['eggs'] += eggs
-        else:
-            buildout['buildout'].update(dict(eggs=eggs))
-        self.buildout_var = buildout['buildout']
-        self.torii_path = os.path.join(self.buildout_var['bin-directory'],options.name)
-        self.required_paths = []
-        for req in REQUIRED_IMPORTS:
-            path = req.__path__[0]
-            for i in range(req.__name__.count('.')+1):
-                path, tail = os.path.split(path)
-            self.required_paths.append(path)
-        
-        self.instance = []
-        for part,opt in buildout.items():
-            if opt.has_key('recipe') and opt['recipe'] == 'plone.recipe.zope2instance' and not opt.has_key('zope-conf'):
-                self.instance.append(part)
-
-        for part in self.instance:
-            self.required_paths.append('%s/lib/python' % buildout[part]['zope2-location'])
-        
-        self.vars = dict(python_path = self.buildout_var['executable'],
-                         raptus_torii_paths = "',\n'".join(self.required_paths),
-                         socket_path = self.options['socket-path'],
+        self.vars = dict(socket_path = self.options['socket-path'],
                          threaded = self.options.get('threaded',False),
                          extends = self.options.get('extends','').strip().replace('\n',';'),
                          params = self.options.get('params','').strip().replace('\n',';'))
 
-        template = template_zope_conf % self.vars
-        for part in self.instance:
-            if buildout[part].has_key('zope-conf-additional'):
-                buildout[part]['zope-conf-additional'] += template
-            else:
-                buildout[part]['zope-conf-additional'] = template
-        if not self.instance:
-            print   """
-                         Warning: plone.recipe.zope2instace not found.
-                         zope.conf is not configured for torii.
-                    """
-        
+
+        extends = self.options.get('extends','') + '\nraptus.torii'
+        options.update({'additional-conf':template_zope_conf % self.vars})
+        options.update(eggs=extends)
+        self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
+
+
     def install(self):
         self.update()
-        return self.torii_path
+        self.requirements, self.working_set = self.egg.working_set()
+        runnable = 'Client("%s").main' % self.options['socket-path']
+        torii_path = zc.buildout.easy_install.scripts([(self.name,'raptus.torii.client',runnable)],
+                                                      self.working_set,
+                                                      self.options['executable'],
+                                                      self.options['bin-directory'],
+                                                      extra_paths = [])
+        return torii_path
 
     def update(self):
-        template = template_torii % self.vars
-        try:
-            fd = open(self.torii_path, 'w+')
-            fd.write(template)
-            print 'Generated script for torii %s' % self.torii_path
-        finally:
-            fd.close()
-            os.chmod(self.torii_path, 0755)
+        pass
 
-        
-            
-template_torii = """#!%(python_path)s
-
-import sys
-sys.path[0:0] = [
-'%(raptus_torii_paths)s']
-
-
-from raptus.torii.client import Client
-
-PATH ='%(socket_path)s'
-Client(PATH).main()
-"""
 
 
 template_zope_conf = """

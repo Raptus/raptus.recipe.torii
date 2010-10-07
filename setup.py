@@ -58,7 +58,8 @@ setup(name='raptus.recipe.torii',
       zip_safe=False,
       install_requires=['setuptools',
                         'zc.buildout',
-                        'raptus.torii'
+                        'zc.recipe.egg',
+                        'zc.buildout'
                         # -*- Extra requirements: -*-
                         ],
       tests_require=tests_require,
