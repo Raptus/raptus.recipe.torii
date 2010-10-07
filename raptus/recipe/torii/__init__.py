@@ -25,12 +25,19 @@ class Recipe(object):
     def install(self):
         self.update()
         self.requirements, self.working_set = self.egg.working_set()
+
         runnable = 'Client("%s").main' % self.options['socket-path']
+        # Only append the instance home and Zope lib/python in a non-egg
+        # environment
+        extra_paths = []
+        lib_python = os.path.join(self.options.get('zope2-location',''), 'lib', 'python')
+        if os.path.exists(lib_python):
+            extra_paths.append(lib_python)
         torii_path = zc.buildout.easy_install.scripts([(self.name,'raptus.torii.client',runnable)],
                                                       self.working_set,
                                                       self.options['executable'],
                                                       self.options['bin-directory'],
-                                                      extra_paths = [])
+                                                      extra_paths = extra_paths)
         return torii_path
 
     def update(self):
