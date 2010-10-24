@@ -10,27 +10,9 @@ def read(*rnames):
 
 version = '1.0'
 
-long_description = (
-    read('README.txt')
-    + '\n' +
-    'Detailed Documentation\n'
-    '**********************\n'
-    + '\n' +
-    read('raptus', 'recipe', 'torii', 'README.txt')
-    + '\n' +
-    'Contributors\n' 
-    '************\n'
-    + '\n' +
-    read('CONTRIBUTORS.txt')
-    + '\n' +
-    'Change history\n'
-    '**************\n'
-    + '\n' + 
-    read('CHANGES.txt')
-    + '\n' +
-   'Download\n'
-    '********\n'
-    )
+long_description=open("README.txt").read() + "\n" + \
+                 open(os.path.join("docs", "HISTORY.txt")).read()
+                 
 entry_point = 'raptus.recipe.torii:Recipe'
 entry_points = {"zc.buildout": ["default = %s" % entry_point]}
 
@@ -51,7 +33,7 @@ setup(name='raptus.recipe.torii',
       author='',
       author_email='',
       url='http://svn.plone.org/svn/collective/',
-      license='ZPL',
+      license='GPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['raptus', 'raptus.recipe'],
       include_package_data=True,
