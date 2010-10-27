@@ -5,9 +5,6 @@ This module contains the tool of raptus.recipe.torii
 import os
 from setuptools import setup, find_packages
 
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
-
 version = '1.0b1'
 
 long_description=open("README.txt").read() + "\n" + \
@@ -20,19 +17,20 @@ tests_require=['zope.testing', 'zc.buildout']
 
 setup(name='raptus.recipe.torii',
       version=version,
-      description="",
+      description='buildout recipe for installing torii',
       long_description=long_description,
       # Get more strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
-        'Framework :: Buildout',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: Zope Public License',
+        "Framework :: Plone",
+        "Framework :: Zope2",
+        "Framework :: Zope3",
+        "Framework :: ZODB",
+        "Programming Language :: Python",
         ],
-      keywords='',
-      author='',
-      author_email='',
-      url='http://svn.plone.org/svn/collective/',
+      keywords='zope remote prompt zodb',
+      author='sriolo',
+      author_email='sriolo@raptus.com',
+      url='http://svn.plone.org/svn/collective/raptus.recipe.torii',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['raptus', 'raptus.recipe'],
