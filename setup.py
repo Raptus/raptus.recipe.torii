@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 version = '1.0b1'
 
-long_description=open("README.txt").read() + "\n" + \
+long_description=open("README.rst").read() + "\n" + \
                  open(os.path.join("docs", "HISTORY.txt")).read()
                  
 entry_point = 'raptus.recipe.torii:Recipe'
@@ -30,7 +30,7 @@ setup(name='raptus.recipe.torii',
       keywords='zope remote prompt zodb',
       author='Raptus AG',
       author_email='dev@raptus.com',
-      url='https://svn.plone.org/svn/collective/raptus.recipe.torii',
+      url='https://github.com/Raptus/raptus.recipe.torii',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['raptus', 'raptus.recipe'],
